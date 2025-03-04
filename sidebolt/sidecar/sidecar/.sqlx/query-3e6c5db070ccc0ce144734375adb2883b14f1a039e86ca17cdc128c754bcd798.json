@@ -1,0 +1,44 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT tantivy_cache_key, file_content_hash, file_path, commit_hash, semantic_search_hash FROM file_cache WHERE repo_ref = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "tantivy_cache_key",
+        "ordinal": 0,
+        "type_info": "Text"
+      },
+      {
+        "name": "file_content_hash",
+        "ordinal": 1,
+        "type_info": "Text"
+      },
+      {
+        "name": "file_path",
+        "ordinal": 2,
+        "type_info": "Text"
+      },
+      {
+        "name": "commit_hash",
+        "ordinal": 3,
+        "type_info": "Text"
+      },
+      {
+        "name": "semantic_search_hash",
+        "ordinal": 4,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "3e6c5db070ccc0ce144734375adb2883b14f1a039e86ca17cdc128c754bcd798"
+}

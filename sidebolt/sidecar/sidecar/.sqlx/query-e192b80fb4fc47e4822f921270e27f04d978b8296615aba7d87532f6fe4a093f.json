@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "insert into file_git_commit_statistics (repo_ref, file_path, commit_hash, commit_timestamp) VALUES (?, ?, ?, ?)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 4
+    },
+    "nullable": []
+  },
+  "hash": "e192b80fb4fc47e4822f921270e27f04d978b8296615aba7d87532f6fe4a093f"
+}

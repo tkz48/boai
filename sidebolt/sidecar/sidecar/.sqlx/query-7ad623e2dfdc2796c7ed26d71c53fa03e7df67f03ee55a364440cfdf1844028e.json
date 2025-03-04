@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "DELETE FROM code_snippet_cache WHERE repo_ref = ?",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": []
+  },
+  "hash": "7ad623e2dfdc2796c7ed26d71c53fa03e7df67f03ee55a364440cfdf1844028e"
+}
