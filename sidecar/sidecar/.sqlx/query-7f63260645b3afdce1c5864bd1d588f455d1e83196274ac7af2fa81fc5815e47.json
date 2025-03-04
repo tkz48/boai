@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "DELETE FROM git_log_statistics WHERE repo_ref = ?",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": []
+  },
+  "hash": "7f63260645b3afdce1c5864bd1d588f455d1e83196274ac7af2fa81fc5815e47"
+}

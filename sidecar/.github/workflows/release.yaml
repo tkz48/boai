@@ -1,0 +1,226 @@
+name: Build & release sidecar
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [ main ]
+    types: [opened, synchronize, reopened]
+
+env:
+  CARGO_INCREMENTAL: 0
+  CARGO_NET_RETRY: 10
+  VERSIONS_REPOSITORY: ${{ github.repository_owner }}/versions
+
+jobs:
+  check-membership:
+    name: Check org membership
+    runs-on: ubuntu-latest
+    outputs:
+      is_member: ${{ steps.check.outputs.is_member }}
+    steps:
+      - id: check
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.BINARIES_RELEASE_PAT }}
+          script: |
+            try {
+              const org = context.repo.owner;
+              const username = context.payload.pull_request.user.login;
+
+              console.log(`Checking membership for user ${username} in org ${org}`);
+
+              const response = await github.rest.orgs.checkMembershipForUser({
+                org: org,
+                username: username
+              });
+
+              const isMember = response.status === 204;
+              console.log(`Membership check result: ${isMember}`);
+
+              return isMember;
+            } catch (error) {
+              console.log(`Error checking membership: ${error.message}`);
+              return false;
+            }
+          result-encoding: string
+
+  build:
+    needs: check-membership
+    if: github.event_name == 'workflow_dispatch' || needs.check-membership.outputs.is_member == 'false'
+    name: Build & Release
+    runs-on: ${{ matrix.job.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        job:
+          - { target: aarch64-unknown-linux-gnu  , os: ubuntu-24.04, use-cross: true, name: linux-arm64 }
+          - { target: arm-unknown-linux-gnueabihf, os: ubuntu-24.04, use-cross: true, name: linux-armhf }
+          - { target: riscv64gc-unknown-linux-gnu, os: ubuntu-24.04, use-cross: true, name: linux-riscv64 }
+          - { target: x86_64-unknown-linux-gnu   , os: ubuntu-24.04, use-cross: true, name: linux-x64 }
+          - { target: x86_64-pc-windows-msvc     , os: windows-2019, name: win32-x64 }
+          - { target: aarch64-pc-windows-msvc    , os: windows-2019, name: win32-arm64 }
+          - { target: x86_64-apple-darwin        , os: macos-13, name: darwin-x64 }
+          - { target: aarch64-apple-darwin       , os: macos-14, name: darwin-arm64 }
+
+    env:
+      BUILD_CMD: cargo
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      id: setup-python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Point gcloud SDK to Python
+      shell: bash
+      run: echo "CLOUDSDK_PYTHON=${{ steps.setup-python.outputs.python-path }}" >> $GITHUB_ENV
+
+    - name: Extract build target information
+      shell: bash
+      run: |
+        OS=$(echo "${{ matrix.job.name }}" | cut -d'-' -f1)
+        ARCH=$(echo "${{ matrix.job.name }}" | cut -d'-' -f2)
+
+        echo "OS_NAME=${OS}" >> $GITHUB_ENV
+        echo "ARCH=${ARCH}" >> $GITHUB_ENV
+
+    - name: Install Linux cross-compilation dependencies
+      if: runner.os == 'Linux'
+      shell: bash
+      run: |
+        sudo apt-get -y update
+        case ${{ matrix.job.target }} in
+          arm-unknown-linux-*) sudo apt-get -y install gcc-arm-linux-gnueabihf ;;
+          aarch64-unknown-linux-gnu) sudo apt-get -y install gcc-aarch64-linux-gnu ;;
+        esac
+
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@master
+      with:
+        toolchain: 1.79.0
+        targets: ${{ matrix.job.target }}
+        components: rust-src
+
+    - name: Install target std library
+      if: matrix.job.target == 'aarch64-pc-windows-msvc'
+      run: |
+        rustup target add aarch64-pc-windows-msvc
+        rustup component add rust-std-aarch64-pc-windows-msvc
+
+    - name: Setup cross for cross-compilation
+      if: matrix.job.use-cross
+      shell: bash
+      run: |
+        cargo install cross --git https://github.com/ghostwriternr/cross
+        echo "BUILD_CMD=cross" >> $GITHUB_ENV
+
+    - uses: Swatinem/rust-cache@v2
+      with:
+        shared-key: ${{ matrix.job.target }}
+
+    - name: Build binary
+      shell: bash
+      run: |
+        if [[ "${{ matrix.job.target }}" == "aarch64-pc-windows-msvc" ]] || [[ "${{ matrix.job.target }}" == "riscv64gc-unknown-linux-gnu" ]]; then
+          $BUILD_CMD build --locked --release --target=${{ matrix.job.target }} --bin webserver --no-default-features
+        else
+          $BUILD_CMD build --locked --release --target=${{ matrix.job.target }} --bin webserver
+        fi
+
+    - name: Set binary name & path
+      if: github.event_name == 'workflow_dispatch'
+      id: bin
+      shell: bash
+      run: |
+        # Figure out suffix of binary
+        EXE_suffix=""
+        case ${{ matrix.job.target }} in
+          *-pc-windows-*) EXE_suffix=".exe" ;;
+        esac;
+
+        # Setup paths
+        BIN_NAME="webserver${EXE_suffix}"
+        BIN_PATH="target/${{ matrix.job.target }}/release/${BIN_NAME}"
+
+        # Let subsequent steps know where to find the binary
+        echo "BIN_PATH=${BIN_PATH}" >> $GITHUB_OUTPUT
+        echo "BIN_NAME=${BIN_NAME}" >> $GITHUB_OUTPUT
+
+    - name: Create zip file
+      if: github.event_name == 'workflow_dispatch'
+      shell: pwsh
+      run: |
+        # Create a staging directory structure
+        New-Item -ItemType Directory -Force -Path staging/target/release
+
+        # Copy binary to staging directory with correct name
+        if ($env:RUNNER_OS -eq "Windows") {
+          Copy-Item "${{ steps.bin.outputs.BIN_PATH }}" "staging/target/release/webserver.exe"
+        } else {
+          Copy-Item "${{ steps.bin.outputs.BIN_PATH }}" "staging/target/release/webserver"
+        }
+
+        # Create zip file
+        Push-Location staging
+        if ($env:RUNNER_OS -eq "Windows") {
+          Compress-Archive -Path * -DestinationPath ../sidecar.zip -Force
+        } else {
+          zip -r ../sidecar.zip .
+        }
+        Pop-Location
+
+    - name: Authenticate with Google Cloud
+      if: github.event_name == 'workflow_dispatch'
+      uses: 'google-github-actions/auth@v2'
+      with:
+        credentials_json: '${{ secrets.GCP_GAE_SA_KEY }}'
+
+    - name: Configure Google Cloud SDK
+      if: github.event_name == 'workflow_dispatch'
+      uses: 'google-github-actions/setup-gcloud@v2'
+      with:
+        project_id: '${{ secrets.GCP_PROJECT_ID }}'
+
+    - name: Update version
+      if: github.event_name == 'workflow_dispatch'
+      env:
+        OS_NAME: ${{ env.OS_NAME }}
+        ARCH: ${{ env.ARCH }}
+        GITHUB_TOKEN: ${{ secrets.BINARIES_RELEASE_PAT }}
+        GITHUB_USERNAME: ${{ github.repository_owner }}
+      shell: bash
+      run: |
+        ./update_version.sh
+
+    - name: Upload zip to GCP
+      if: github.event_name == 'workflow_dispatch'
+      env:
+        OS_NAME: ${{ env.OS_NAME }}
+        ARCH: ${{ env.ARCH }}
+        CARGO_PKG_VERSION: ${{ env.CARGO_PKG_VERSION }}
+        GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+        GCP_BUCKET_NAME: ${{ secrets.GCP_BUCKET_NAME }}
+        GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+      shell: bash
+      run: |
+        echo "Debug info:"
+        echo "OS_NAME: ${OS_NAME}"
+        echo "ARCH: ${ARCH}"
+        echo "CARGO_PKG_VERSION: ${CARGO_PKG_VERSION}"
+
+        SPECIFIC_VERSION_PATH="${CARGO_PKG_VERSION}/${OS_NAME}/${ARCH}/sidecar.zip"
+        LATEST_VERSION_PATH="latest/${OS_NAME}/${ARCH}/sidecar.zip"
+
+        echo "Paths:"
+        echo "SPECIFIC_VERSION_PATH: ${SPECIFIC_VERSION_PATH}"
+        echo "LATEST_VERSION_PATH: ${LATEST_VERSION_PATH}"
+
+        # Verify file exists
+        ls -l "./sidecar.zip"
+
+        # Copy with verbose flag
+        gsutil cp "./sidecar.zip" "gs://sidecar-bin/${SPECIFIC_VERSION_PATH}"
+        gsutil cp "./sidecar.zip" "gs://sidecar-bin/${LATEST_VERSION_PATH}"

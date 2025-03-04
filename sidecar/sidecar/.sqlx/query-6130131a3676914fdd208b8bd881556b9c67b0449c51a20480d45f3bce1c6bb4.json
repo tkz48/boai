@@ -1,0 +1,26 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT prompt, response FROM openai_llm_data WHERE event_type like \"%RequestAndResponse%\" AND prompt like \"%when asked for your name%\"",
+  "describe": {
+    "columns": [
+      {
+        "name": "prompt",
+        "ordinal": 0,
+        "type_info": "Text"
+      },
+      {
+        "name": "response",
+        "ordinal": 1,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": [
+      true,
+      true
+    ]
+  },
+  "hash": "6130131a3676914fdd208b8bd881556b9c67b0449c51a20480d45f3bce1c6bb4"
+}

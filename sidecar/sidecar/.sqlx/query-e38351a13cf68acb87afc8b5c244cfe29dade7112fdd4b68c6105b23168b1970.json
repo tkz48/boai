@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "insert into git_log_statistics (repo_ref, commit_hash, author_email, commit_timestamp, files_changed, title, body, lines_insertions, lines_deletions, git_diff, file_insertions, file_deletions) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 12
+    },
+    "nullable": []
+  },
+  "hash": "e38351a13cf68acb87afc8b5c244cfe29dade7112fdd4b68c6105b23168b1970"
+}

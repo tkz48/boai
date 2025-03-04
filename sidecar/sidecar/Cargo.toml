@@ -1,0 +1,98 @@
+[package]
+name = "sidecar"
+version = "0.1.35"
+edition = "2021"
+build = "build.rs"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[features]
+default = ["image_compression"]
+ee = []
+image_compression = ["libcaesium", "image"]
+tee_requests = []
+
+[dependencies]
+libcaesium = { version = "0.17.1", default-features = false, features = ["jpg", "png"], optional = true }
+image = { version = "0.25.1", default-features = false, optional = true }
+base64 = "0.21.5"
+async-trait = "0.1.77"
+smallvec = { version = "1.11.0", features = ["serde"]}
+tokio = { version = "1.32.0", features = ["full"] }
+tokio-util = "0.7.12"
+scc = { version = "1.8.3", features = ["serde"] }
+tokenizers = { version = "0.13.3", default-features = false, features = ["progressbar", "cli", "onig", "esaxx_fast"] }
+anyhow = "1.0.75"
+serde_json = "1.0.107"
+serde = { version = "1.0.188", features = ["derive"] }
+once_cell = "1.18.0"
+regex = ">= 1.9, < 1.9.5"
+memchr = "2.5.0"
+axum = { version = "0.6.20", features = ["http2", "headers", "macros"] }
+tracing = "0.1.37"
+tracing-subscriber = { version = "0.3.17", features = ["env-filter"] }
+tracing-appender = "0.2.2"
+directories = "5.0.1"
+clap = "4.4.6"
+color-eyre = "0.6.2"
+ignore = "0.4.20"
+erased-serde = "0.3.31"
+tower = "0.4.13"
+tower-http = { version = "0.4.1", features = ["auth", "cors", "catch-panic", "fs"] }
+thiserror = "1.0.49"
+gix = "0.54.1"
+rand = "0.8.5"
+flume = "0.11.0"
+rayon = "1.8.0"
+either = "1.9.0"
+async-stream = "0.3.5"
+futures = "0.3.28"
+sqlx = { version = "0.7.2", features = ["sqlite", "migrate", "runtime-tokio-rustls", "chrono", "uuid"]}
+blake3 = "1.5.0"
+tree-sitter = "0.20.10"
+tree-sitter-typescript = "0.20.1"
+tree-sitter-javascript = "0.20.1"
+tree-sitter-rust = "0.20.4"
+uuid = {version = "1.4.1", features = ["serde"] }
+async-openai = "0.27.1"
+reqwest = "0.12.12"
+chrono = { version = "0.4.31", features = ["serde"] }
+tiktoken-rs = "0.5.4"
+rake = "0.3.3"
+tokio-stream = "0.1.14"
+tree-sitter-python = "0.20.4"
+petgraph = { version = "0.6.5", default-features = false, features = ["serde-1", "stable_graph"] }
+tempfile = "3.3.0"
+
+llm_client = { path = "../llm_client" }
+llm_prompts = { path = "../llm_prompts" }
+logging = { path = "../logging" }
+whoami = "1.4.1"
+url = "2.5.0"
+eventsource-stream = "0.2.3"
+dashmap = "5.5.3"
+lazy_static = "1.4.0"
+sysinfo = "0.30.7"
+tree-sitter-go = "0.20.0"
+serde-xml-rs = "0.6.0"
+async-recursion = "1.1.1"
+tree_magic_mini = "3.0.2"
+quick-xml = { version = "0.31.0", features = [ "serialize" ] }
+derivative = "2.2.0"
+similar = "2.6.0"
+globset = "0.4.15"
+dirs = "5.0.1"
+diffy = "0.4.0"
+colored = "2.1.0"
+reqwest-middleware = "0.4.0"
+mcp_client_rs = "0.1.7"
+
+[target.'cfg(unix)'.dependencies]
+openssl = { version = "0.10", features = ["vendored"] }
+
+[build-dependencies]
+fs_extra = "1.3.0"
+blake3 = "1.4.0"
+phf_codegen = "0.11.2"
+serde = {version = "1.0.188", features = ["derive"]}
+serde_yaml = "0.9.25"

@@ -1,0 +1,104 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT message_id, query, answer, created_at, last_updated, session_id, steps_taken, agent_state, file_paths, code_spans, user_selected_code_span, open_files, conversation_state, generated_answer_context, user_context FROM agent_conversation_message WHERE session_id = ? AND repo_ref = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "message_id",
+        "ordinal": 0,
+        "type_info": "Text"
+      },
+      {
+        "name": "query",
+        "ordinal": 1,
+        "type_info": "Text"
+      },
+      {
+        "name": "answer",
+        "ordinal": 2,
+        "type_info": "Text"
+      },
+      {
+        "name": "created_at",
+        "ordinal": 3,
+        "type_info": "Int64"
+      },
+      {
+        "name": "last_updated",
+        "ordinal": 4,
+        "type_info": "Int64"
+      },
+      {
+        "name": "session_id",
+        "ordinal": 5,
+        "type_info": "Text"
+      },
+      {
+        "name": "steps_taken",
+        "ordinal": 6,
+        "type_info": "Text"
+      },
+      {
+        "name": "agent_state",
+        "ordinal": 7,
+        "type_info": "Text"
+      },
+      {
+        "name": "file_paths",
+        "ordinal": 8,
+        "type_info": "Text"
+      },
+      {
+        "name": "code_spans",
+        "ordinal": 9,
+        "type_info": "Text"
+      },
+      {
+        "name": "user_selected_code_span",
+        "ordinal": 10,
+        "type_info": "Text"
+      },
+      {
+        "name": "open_files",
+        "ordinal": 11,
+        "type_info": "Text"
+      },
+      {
+        "name": "conversation_state",
+        "ordinal": 12,
+        "type_info": "Text"
+      },
+      {
+        "name": "generated_answer_context",
+        "ordinal": 13,
+        "type_info": "Text"
+      },
+      {
+        "name": "user_context",
+        "ordinal": 14,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "89e8a76436d3395071a2cf5608804c8a2c7ebc9d73bde890f3a2ff79b2ebf309"
+}

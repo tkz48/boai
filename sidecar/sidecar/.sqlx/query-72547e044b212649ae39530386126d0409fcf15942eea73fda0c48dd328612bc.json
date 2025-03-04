@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "DELETE FROM chunk_cache WHERE chunk_hash = ? AND file_cache_key = ?",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "72547e044b212649ae39530386126d0409fcf15942eea73fda0c48dd328612bc"
+}
