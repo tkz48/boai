@@ -1,0 +1,26 @@
+{
+  "db_name": "SQLite",
+  "query": "select chunk_hash, commit_hash from chunk_cache where file_cache_key = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "chunk_hash",
+        "ordinal": 0,
+        "type_info": "Text"
+      },
+      {
+        "name": "commit_hash",
+        "ordinal": 1,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "7efe113a4a28d2f473d9ce4ad31f36a702400f0ba77fabdf255bdc87d4ce5db8"
+}

@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "UPDATE chunk_cache SET commit_hash = ? WHERE chunk_hash = ?",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "de4f91107148e44a1650f38f1d905e5d71b63fff588a556886fb19cb9401b1f3"
+}

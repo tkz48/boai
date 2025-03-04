@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "insert into chunk_cache (chunk_hash, commit_hash, file_cache_key, repo_ref, file_path) VALUES (?, ?, ?, ?, ?)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 5
+    },
+    "nullable": []
+  },
+  "hash": "444d3d341830d2001e5ec4f891c648b66c9ed54602a67213d7b2610ab024e5be"
+}

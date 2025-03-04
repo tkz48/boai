@@ -1,0 +1,32 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT file_path, commit_hash, commit_timestamp FROM file_git_commit_statistics WHERE repo_ref = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "file_path",
+        "ordinal": 0,
+        "type_info": "Text"
+      },
+      {
+        "name": "commit_hash",
+        "ordinal": 1,
+        "type_info": "Text"
+      },
+      {
+        "name": "commit_timestamp",
+        "ordinal": 2,
+        "type_info": "Int64"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "c93e42c9c10c0b79ff7d376f3fd318ad6859a0efa42359ecbcaeb568684df4ce"
+}

@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+      target: sidebolt-ai-development
+    container_name: sidebolt-frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - NODE_ENV=development
+    env_file:
+      - .env
+    volumes:
+      - ./app:/app/app
+      - ./public:/app/public
+    depends_on:
+      - sidecar
+    networks:
+      - sidebolt-network
+
+  sidecar:
+    build:
+      context: ./sidecar
+      dockerfile: Dockerfile
+    container_name: sidebolt-sidecar
+    ports:
+      - "3000:3000"
+    environment:
+      - RUST_LOG=info
+    env_file:
+      - .env
+    volumes:
+      - ./sidecar:/app/sidecar
+      - sidecar-data:/app/data
+    networks:
+      - sidebolt-network
+
+networks:
+  sidebolt-network:
+    driver: bridge
+
+volumes:
+  sidecar-data:

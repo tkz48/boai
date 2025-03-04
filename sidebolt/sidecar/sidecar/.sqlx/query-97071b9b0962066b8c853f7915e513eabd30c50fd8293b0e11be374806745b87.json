@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "INSERT INTO code_snippet_cache (repo_ref, tantivy_cache_key, commit_hash, file_path, content_hash) VALUES (?, ?, ?, ?, ?)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 5
+    },
+    "nullable": []
+  },
+  "hash": "97071b9b0962066b8c853f7915e513eabd30c50fd8293b0e11be374806745b87"
+}
